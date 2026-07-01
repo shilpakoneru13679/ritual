@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ritual: Settings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #faf7f2; --surface: #ffffff; --surface-2: #f3efe8;
+      --border: #e2dbd0; --text: #1e1a2e; --muted: #7a7090;
+      --purple: #5b2d8e; --purple-light: #7c3fbf; --purple-pale: #ede5f8;
+      --orange: #d4621a; --orange-light: #e8803a; --orange-pale: #fbeee5;
+      --ruby: #b5263c; --ruby-pale: #fce8eb;
+      --gold: #c49a1a; --gold-pale: #fdf4d8;
+      --sapphire: #1a4a9b; --sapphire-pale: #e5ecfb;
+      --emerald: #1a7a4a; --emerald-pale: #e5f5ec;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    nav { padding: 1.2rem 2.5rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid var(--border); background: var(--surface); }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; letter-spacing: 0.06em; color: var(--purple); }
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-links { display: flex; gap: 0.25rem; }
+    .nav-links a { padding: 0.45rem 0.9rem; border-radius: 4px; font-size: 0.82rem; text-decoration: none; color: var(--muted); transition: all 0.15s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--purple); background: var(--purple-pale); }
+    .logout { font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+
+    .container { max-width: 600px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+    h1 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 0.4rem; }
+    .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
+
+    .saved-banner { background: var(--emerald-pale); border: 1.5px solid var(--emerald); border-radius: 8px; padding: 0.9rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.875rem; color: var(--emerald); font-weight: 500; display: flex; align-items: center; gap: 0.5rem; }
+
+    .section { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 1.5rem 1.75rem; margin-bottom: 1.25rem; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 1.25rem; }
+    .section:nth-of-type(1) { border-top: 3px solid var(--ruby); }
+    .section:nth-of-type(2) { border-top: 3px solid var(--emerald); }
+    .section:nth-of-type(3) { border-top: 3px solid var(--sapphire); }
+
+    .field-label { display: block; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+    .field { margin-bottom: 1.1rem; }
+    .field:last-child { margin-bottom: 0; }
+
+    input[type="text"], input[type="number"] {
+      width: 100%; padding: 0.75rem 1rem; background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 4px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+      outline: none; transition: border 0.15s;
+    }
+    input:focus { border-color: var(--purple-light); }
+    input::placeholder { color: #c0b8c8; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .two-col .field-label { display: flex; align-items: center; gap: 0.3rem; }
+
+    /* Video preference */
+    .video-toggle-row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.5rem; }
+    .video-chip { padding: 0.45rem 0.95rem; border: 1.5px solid var(--sapphire); border-radius: 100px; font-size: 0.8rem; color: var(--sapphire); cursor: pointer; background: white; transition: all 0.15s; }
+    .video-chip.active { background: var(--sapphire); color: white; }
+    .video-days-select { display: none; align-items: center; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+    .video-days-select.show { display: flex; }
+    .video-day-chip { padding: 0.4rem 0.8rem; border: 1.5px solid var(--border); border-radius: 100px; font-size: 0.78rem; color: var(--muted); cursor: pointer; background: white; transition: all 0.15s; }
+    .video-day-chip.selected { border-color: var(--sapphire); color: var(--sapphire); background: var(--sapphire-pale); }
+    .video-type-select { margin-top: 0.75rem; display: none; }
+    .video-type-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .video-type-chip { padding: 0.4rem 0.85rem; border: 1.5px solid var(--border); border-radius: 100px; font-size: 0.78rem; color: var(--muted); cursor: pointer; background: white; transition: all 0.15s; }
+    .video-type-chip.selected { border-color: var(--orange); color: var(--orange); background: var(--orange-pale); }
+
+    .submit-btn { width: 100%; padding: 1rem; background: var(--purple); color: white; border: 1.5px solid var(--purple-light); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .submit-btn:hover { background: var(--purple-light); }
+
+    .full-setup-link { text-align: center; margin-top: 1.5rem; font-size: 0.82rem; }
+    .full-setup-link a { color: var(--purple); text-decoration: none; }
+    .full-setup-link a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="logo">Ritual</div>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/dashboard">Home</a>
+      <a href="/workout">Workout</a>
+      <a href="/meals">Meals</a>
+      <a href="/calendar">Calendar</a>
+    </div>
+    <a href="/logout" class="logout">Log out</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>Settings</h1>
+  <p class="sub">Update your daily targets and preferences anytime.</p>
+
+  {% if saved %}
+  <div class="saved-banner">✓ Saved! Your changes are live.</div>
+  {% endif %}
+
+  <form action="/settings" method="post" id="settings-form">
+
+    <div class="section">
+      <div class="section-title">Daily targets</div>
+      <div class="two-col">
+        <div class="field">
+          <label class="field-label">😴 Sleep goal (hours)</label>
+          <input type="number" name="sleep_goal_hours" value="{{ user.sleep_goal_hours }}" min="0" max="14" step="0.5">
+        </div>
+        <div class="field">
+          <label class="field-label">💧 Water goal (oz)</label>
+          <input type="number" name="water_goal_oz" value="{{ user.water_goal_oz }}" min="0" step="8">
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Meal preferences</div>
+      <div class="field">
+        <label class="field-label">Dietary preferences or restrictions</label>
+        <input type="text" name="dietary_prefs" value="{{ user.dietary_prefs }}" placeholder="e.g. vegetarian, no gluten, high protein...">
+      </div>
+      <div class="field">
+        <label class="field-label">Weekly grocery budget ($)</label>
+        <input type="number" name="weekly_grocery_budget" value="{{ user.weekly_grocery_budget }}" min="0" step="5">
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Workout preferences</div>
+      <div class="field">
+        <label class="field-label">Default weekly focus</label>
+        <input type="text" name="weekly_goal" value="{{ user.weekly_goal }}" placeholder="e.g. build core strength, stay consistent...">
+      </div>
+
+      <div class="field">
+        <label class="field-label" style="margin-bottom: 0.65rem;">Follow YouTube workout videos?</label>
+        <div class="video-toggle-row">
+          <div class="video-chip" id="video-yes" onclick="toggleVideo(true)">Yes, include videos</div>
+          <div class="video-chip active" id="video-no" onclick="toggleVideo(false)">No, just text plan</div>
+        </div>
+        <div class="video-days-select" id="video-days">
+          <span style="font-size:0.8rem;color:var(--muted);margin-right:0.3rem;">How many days?</span>
+          <div class="video-day-chip" onclick="selectVideoDays(1, this)">1 day</div>
+          <div class="video-day-chip" onclick="selectVideoDays(2, this)">2 days</div>
+          <div class="video-day-chip" onclick="selectVideoDays(3, this)">3 days</div>
+          <div class="video-day-chip" onclick="selectVideoDays(4, this)">4+ days</div>
+        </div>
+        <div class="video-type-select" id="video-type-wrap">
+          <span style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:0.5rem;">What kind?</span>
+          <div class="video-type-row">
+            <div class="video-type-chip" onclick="toggleVideoType('Pilates', this)">Pilates</div>
+            <div class="video-type-chip" onclick="toggleVideoType('Yoga', this)">Yoga</div>
+            <div class="video-type-chip" onclick="toggleVideoType('HIIT / circuit', this)">HIIT / circuit</div>
+            <div class="video-type-chip" onclick="toggleVideoType('Strength training', this)">Strength training</div>
+            <div class="video-type-chip" onclick="toggleVideoType('Dance cardio', this)">Dance cardio</div>
+            <div class="video-type-chip" onclick="toggleVideoType('Stretching / mobility', this)">Stretching / mobility</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <input type="hidden" name="use_videos" id="use-videos-input" value="{{ 'true' if user.use_videos else 'false' }}">
+    <input type="hidden" name="video_days" id="video-days-input" value="{{ user.video_days }}">
+    <input type="hidden" name="video_types" id="video-types-input" value="{{ user.video_types }}">
+
+    <button type="submit" class="submit-btn">Save changes</button>
+  </form>
+
+  <p class="full-setup-link">Need to change equipment, workout days, or goals? <a href="/onboarding">Go to full setup</a></p>
+</div>
+
+<script>
+  let selectedVideoDays = parseInt("{{ user.video_days }}") || 0;
+  let selectedVideoTypes = "{{ user.video_types }}".split(',').filter(Boolean);
+
+  // Initialize state from saved values
+  if ("{{ 'true' if user.use_videos else 'false' }}" === "true") {
+    document.getElementById('video-yes').classList.add('active');
+    document.getElementById('video-no').classList.remove('active');
+    document.getElementById('video-days').classList.add('show');
+    document.getElementById('video-type-wrap').style.display = 'block';
+  }
+
+  document.querySelectorAll('.video-day-chip').forEach(chip => {
+    if (chip.textContent.includes(selectedVideoDays + ' day') || (selectedVideoDays >= 4 && chip.textContent.includes('4+'))) {
+      chip.classList.add('selected');
+    }
+  });
+
+  document.querySelectorAll('.video-type-chip').forEach(chip => {
+    if (selectedVideoTypes.includes(chip.textContent.trim())) {
+      chip.classList.add('selected');
+    }
+  });
+
+  function toggleVideo(yes) {
+    document.getElementById('video-yes').classList.toggle('active', yes);
+    document.getElementById('video-no').classList.toggle('active', !yes);
+    document.getElementById('video-days').classList.toggle('show', yes);
+    document.getElementById('video-type-wrap').style.display = yes ? 'block' : 'none';
+    document.getElementById('use-videos-input').value = yes ? 'true' : 'false';
+  }
+
+  function selectVideoDays(n, el) {
+    selectedVideoDays = n;
+    document.querySelectorAll('.video-day-chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('video-days-input').value = n;
+  }
+
+  function toggleVideoType(type, el) {
+    el.classList.toggle('selected');
+    if (selectedVideoTypes.includes(type)) {
+      selectedVideoTypes = selectedVideoTypes.filter(t => t !== type);
+    } else {
+      selectedVideoTypes.push(type);
+    }
+    document.getElementById('video-types-input').value = selectedVideoTypes.join(',');
+  }
+</script>
+</body>
+</html>

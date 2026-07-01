@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ritual</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #faf7f2;
+      --surface: #ffffff;
+      --border: #e2dbd0;
+      --text: #1e1a2e;
+      --muted: #7a7090;
+      --purple: #5b2d8e;
+      --purple-light: #7c3fbf;
+      --purple-pale: #ede5f8;
+      --orange: #d4621a;
+      --orange-light: #e8803a;
+      --orange-pale: #fbeee5;
+      --ruby: #b5263c;
+      --gold: #c49a1a;
+      --sapphire: #1a4a9b;
+      --emerald: #1a7a4a;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+    nav { padding: 1.5rem 3rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: var(--surface); }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; letter-spacing: 0.06em; color: var(--purple); text-decoration: none; }
+    .nav-links { display: flex; gap: 0.75rem; }
+    .btn-ghost { padding: 0.5rem 1.1rem; border-radius: 4px; font-size: 0.875rem; text-decoration: none; color: var(--muted); border: 1.5px solid var(--border); transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+    .btn-ghost:hover { color: var(--text); border-color: var(--purple); }
+    .btn-solid { padding: 0.5rem 1.1rem; border-radius: 4px; font-size: 0.875rem; text-decoration: none; background: var(--purple); color: white; border: 1.5px solid var(--purple); transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+    .btn-solid:hover { background: var(--purple-light); border-color: var(--purple-light); }
+
+    .hero { max-width: 780px; margin: 0 auto; padding: 6rem 2rem 4rem; text-align: center; }
+    .eyebrow { font-size: 0.72rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--orange); margin-bottom: 1.5rem; font-weight: 500; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(3rem, 7vw, 5rem); line-height: 1.1; margin-bottom: 1.5rem; color: var(--text); }
+    h1 em { font-style: italic; color: var(--purple); }
+    .subtitle { font-size: 1.05rem; color: var(--muted); line-height: 1.8; max-width: 480px; margin: 0 auto 3rem; }
+
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 4rem; }
+    .cta-primary { padding: 1rem 2.2rem; background: var(--purple); color: white; border: 1.5px solid var(--purple); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500; text-decoration: none; transition: all 0.2s; box-shadow: 3px 3px 0 rgba(91,45,142,0.2); }
+    .cta-primary:hover { background: var(--purple-light); box-shadow: 4px 4px 0 rgba(91,45,142,0.25); }
+    .cta-secondary { padding: 1rem 2.2rem; background: transparent; color: var(--muted); border: 1.5px solid var(--border); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 1rem; text-decoration: none; transition: all 0.2s; }
+    .cta-secondary:hover { color: var(--text); border-color: var(--purple); }
+
+    /* Feature cards */
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 860px; margin: 0 auto; padding: 0 2rem 5rem; }
+    @media (max-width: 640px) { .features { grid-template-columns: 1fr 1fr; } }
+    .feature-card { padding: 1.5rem; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); transition: transform 0.2s; }
+    .feature-card:hover { transform: translateY(-2px); }
+    .feature-card:nth-child(1) { border-top: 3px solid var(--purple); }
+    .feature-card:nth-child(2) { border-top: 3px solid var(--orange); }
+    .feature-card:nth-child(3) { border-top: 3px solid var(--ruby); }
+    .feature-card:nth-child(4) { border-top: 3px solid var(--gold); }
+    .feature-card:nth-child(5) { border-top: 3px solid var(--sapphire); }
+    .feature-card:nth-child(6) { border-top: 3px solid var(--emerald); }
+    .feature-icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
+    .feature-title { font-weight: 500; font-size: 0.95rem; margin-bottom: 0.3rem; color: var(--text); }
+    .feature-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">Ritual</div>
+    <div class="nav-links">
+      <a href="/login" class="btn-ghost">Log in</a>
+      <a href="/signup" class="btn-solid">Get started</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <p class="eyebrow">Your daily wellness companion</p>
+    <h1>Build a routine that <em>actually sticks.</em></h1>
+    <p class="subtitle">AI-generated workout plans, meal prep, and a daily check-in that tracks how you really feel.</p>
+    <div class="hero-btns">
+      <a href="/signup" class="cta-primary">Start for free</a>
+      <a href="/login" class="cta-secondary">Already have an account</a>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon">💪</div>
+      <div class="feature-title">Personalized workouts</div>
+      <p class="feature-desc">Built around your goals, equipment, and schedule.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🥗</div>
+      <div class="feature-title">Weekly meal prep</div>
+      <p class="feature-desc">7-day plans based on your budget or what you have.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛒</div>
+      <div class="feature-title">Grocery lists</div>
+      <p class="feature-desc">Everything you need, organized and ready to shop.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">😴</div>
+      <div class="feature-title">Sleep tracking</div>
+      <p class="feature-desc">Log your sleep and spot patterns over time.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Mood & energy logs</div>
+      <p class="feature-desc">A quick daily check-in so you can see the full picture.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌙</div>
+      <div class="feature-title">Period tracking</div>
+      <p class="feature-desc">Log your cycle alongside everything else.</p>
+    </div>
+  </div>
+</body>
+</html>

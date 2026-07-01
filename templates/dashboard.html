@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ritual: Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+  --bg: #faf7f2; --surface: #ffffff; --surface-2: #f3efe8;
+  --border: #e2dbd0; --text: #1e1a2e; --muted: #7a7090;
+  --purple: #5b2d8e; --purple-light: #7c3fbf; --purple-pale: #ede5f8;
+  --orange: #d4621a; --orange-light: #e8803a; --orange-pale: #fbeee5;
+  --ruby: #b5263c; --ruby-pale: #fce8eb;
+  --gold: #c49a1a; --gold-pale: #fdf4d8;
+  --sapphire: #1a4a9b; --sapphire-pale: #e5ecfb; --emerald: #1a7a4a; --emerald-pale: #e5f5ec; --pink: #9b3a68; --pink-pale: #f8e5ee;
+}
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    nav { padding: 1.2rem 2.5rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid var(--border); background: var(--surface); }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; letter-spacing: 0.08em; }
+    .logo span { color: var(--purple); }
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-links { display: flex; gap: 0.25rem; }
+    .nav-links a { padding: 0.45rem 0.9rem; border-radius: 4px; font-size: 0.82rem; text-decoration: none; color: var(--muted); transition: all 0.15s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--surface-2); }
+    .logout { font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+    .logout:hover { color: var(--text); }
+
+    .container { max-width: 1000px; margin: 0 auto; padding: 2.5rem 2rem; }
+
+    .greeting { margin-bottom: 2.5rem; }
+    .greeting-date { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
+    .greeting h1 { font-family: 'Playfair Display', serif; font-size: 2rem; }
+    .greeting h1 em { font-style: italic; color: var(--purple); }
+
+    /* Daily check-in card */
+    .checkin-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 1.75rem 2rem; margin-bottom: 2rem; }
+
+    /* Weekly summary */
+    .weekly-summary-card { background: var(--sapphire-pale); border: 1.5px solid var(--sapphire); border-radius: 8px; padding: 1.5rem 1.75rem; margin-bottom: 1.5rem; }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 0.75rem; }
+    @media (max-width: 500px) { .summary-grid { grid-template-columns: 1fr 1fr; } }
+    .summary-stat { text-align: center; background: white; border-radius: 6px; padding: 0.85rem 0.5rem; }
+    .summary-val { display: block; font-size: 1.3rem; font-weight: 600; color: var(--sapphire); }
+    .summary-label { display: block; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-top: 0.25rem; }
+    .card-label { font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--purple); margin-bottom: 1rem; }
+    .checkin-done { display: flex; align-items: center; gap: 0.75rem; color: var(--muted); font-size: 0.9rem; }
+    .checkin-done .dot { width: 8px; height: 8px; background: var(--purple-light); border-radius: 50%; }
+
+    /* Quote of the day */
+    .quote-card { margin-top: 1rem; padding: 1.25rem 1.5rem; background: var(--orange-pale); border: 1.5px solid var(--orange-light); border-radius: 8px; }
+    .quote-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--orange); margin-bottom: 0.5rem; font-weight: 600; }
+    .quote-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.05rem; line-height: 1.5; color: var(--text); }
+
+    /* Today's stats row */
+    .today-stats { display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap; }
+    .today-stat { flex: 1; min-width: 90px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 6px; padding: 0.85rem; text-align: center; }
+    .today-stat-icon { display: block; font-size: 1.1rem; margin-bottom: 0.3rem; }
+    .today-stat-val { display: block; font-size: 1.1rem; font-weight: 600; color: var(--purple); }
+    .today-stat-label { display: block; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
+
+    /* Insight card */
+    .insight-card { margin-top: 1rem; padding: 1rem 1.25rem; background: var(--pink-pale); border: 1.5px solid var(--pink); border-radius: 8px; }
+    .insight-text { font-size: 0.9rem; color: var(--pink); font-weight: 500; line-height: 1.5; }
+
+    .water-input { width: 100%; padding: 0.65rem 0.9rem; background: var(--surface); border: 1.5px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; transition: border 0.15s; }
+    .water-input:focus { border-color: var(--purple-light); }
+    .water-input::placeholder { color: #c0b8c8; }
+
+    .checkin-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 600px) { .checkin-form { grid-template-columns: 1fr; } }
+
+    .form-field label { display: block; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+
+    /* Slider */
+    .slider-wrap { display: flex; align-items: center; gap: 0.75rem; }
+    input[type="range"] { flex: 1; accent-color: var(--purple); }
+    .slider-val { font-size: 0.9rem; font-weight: 500; color: var(--pink); min-width: 1.5rem; text-align: right; }
+
+    /* Toggle */
+    .toggle-wrap { display: flex; align-items: center; gap: 0.75rem; }
+    .toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
+    .toggle input { display: none; }
+    .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 22px; cursor: pointer; transition: 0.2s; }
+    .toggle input:checked + .toggle-slider { background: var(--pink); }
+    .toggle-slider::before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+    .toggle-label { font-size: 0.875rem; color: var(--muted); }
+
+    textarea { width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.875rem; outline: none; resize: none; height: 70px; transition: border 0.15s; grid-column: 1 / -1; }
+    textarea:focus { border-color: var(--purple-light); }
+    textarea::placeholder { color: #c0b8c8; }
+
+    .checkin-submit { grid-column: 1 / -1; }
+    .btn-submit { width: 100%; padding: 0.85rem; background: var(--purple); color: white; border: 1.5px solid var(--purple-light); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn-submit:hover { background: var(--purple-light); }
+
+    /* Main grid */
+    .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .main-grid .card:nth-child(1) { border-top: 3px solid var(--orange); }
+    .main-grid .card:nth-child(2) { border-top: 3px solid var(--sapphire); }
+    @media (max-width: 700px) { .main-grid { grid-template-columns: 1fr; } }
+
+    .card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 1.75rem 2rem; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+    .card-action { font-size: 0.78rem; color: var(--purple); text-decoration: none; border: 1px solid var(--emerald); padding: 0.3rem 0.75rem; border-radius: 4px; transition: all 0.15s; background: none; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .card-action:hover { background: var(--orange); color: white; }
+
+    .empty-state { color: var(--muted); font-size: 0.875rem; line-height: 1.6; }
+    .plan-preview { font-size: 0.85rem; line-height: 1.7; color: #5a5070; white-space: pre-wrap; max-height: 180px; overflow: hidden; position: relative; }
+    .plan-preview::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: linear-gradient(transparent, var(--surface)); }
+
+    /* Stats row */
+    .stats-row { display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+
+    .chart-wrap { height: 180px; position: relative; }
+    .chart-legend { display: flex; gap: 1.25rem; justify-content: center; margin-top: 1rem; font-size: 0.78rem; color: var(--muted); }
+    .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 0.3rem; }
+    .sleep-dot { background: #c49a1a; }
+    .mood-dot { background: #9b3a68; }
+    .stat { flex: 1; min-width: 80px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; text-align: center; }
+    .stat-val { font-size: 1.2rem; font-weight: 500; color: var(--purple); }
+    .stat-label { font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
+
+    .sleep-hours { color: var(--purple); }
+    .mood-val { color: var(--purple); }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="logo">Ritual</div>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/dashboard" class="active">Home</a>
+      <a href="/workout">Workout</a>
+      <a href="/meals">Meals</a>
+      <a href="/calendar">Calendar</a>
+      <a href="/settings">Settings</a>
+    </div>
+    <a href="/logout" class="logout">Log out</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="greeting">
+    <p class="greeting-date">{{ today }}</p>
+    <h1>Hey, <em>{{ user.name }}</em>.</h1>
+  </div>
+
+  <!-- Weekly summary -->
+  <div class="weekly-summary-card">
+    <p class="card-label" style="color: var(--sapphire);">This week</p>
+    <div class="summary-grid">
+      <div class="summary-stat">
+        <span class="summary-val">{{ weekly_summary.days_logged }}/{{ weekly_summary.total_days }}</span>
+        <span class="summary-label">Days logged</span>
+      </div>
+      <div class="summary-stat">
+        <span class="summary-val">{{ weekly_summary.avg_sleep if weekly_summary.avg_sleep else '—' }}{{ 'h' if weekly_summary.avg_sleep else '' }}</span>
+        <span class="summary-label">Avg sleep</span>
+      </div>
+      <div class="summary-stat">
+        <span class="summary-val">{{ weekly_summary.avg_mood if weekly_summary.avg_mood else '—' }}{{ '/5' if weekly_summary.avg_mood else '' }}</span>
+        <span class="summary-label">Avg mood</span>
+      </div>
+      <div class="summary-stat">
+        <span class="summary-val">{{ weekly_summary.workouts_done }}</span>
+        <span class="summary-label">Workouts done</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily check-in -->
+  <div class="checkin-card">
+    <p class="card-label">Daily check-in</p>
+
+    {% if today_log %}
+    <div class="checkin-done">
+      <div class="dot"></div>
+      <span>Logged today</span>
+    </div>
+
+    <div class="today-stats">
+      <div class="today-stat">
+        <span class="today-stat-icon">😴</span>
+        <span class="today-stat-val">{{ today_log.sleep_hours }}h</span>
+        <span class="today-stat-label">Sleep</span>
+      </div>
+      <div class="today-stat">
+        <span class="today-stat-icon">⚡</span>
+        <span class="today-stat-val">{{ today_log.stress_level }}/5</span>
+        <span class="today-stat-label">Stress</span>
+      </div>
+      <div class="today-stat">
+        <span class="today-stat-icon">💧</span>
+        <span class="today-stat-val">{{ today_log.water_oz|int if today_log.water_oz else 0 }}oz</span>
+        <span class="today-stat-label">Water</span>
+      </div>
+    </div>
+
+    {% if daily_insight %}
+    <div class="insight-card">
+      <p class="insight-text">{{ daily_insight }}</p>
+    </div>
+    {% endif %}
+
+    <div class="quote-card">
+      <p class="quote-label">Quote of the day</p>
+      <p class="quote-text">"{{ daily_quote }}"</p>
+    </div>
+    {% else %}
+    <form action="/log" method="post" class="checkin-form">
+      <div class="form-field">
+        <label>Sleep last night (hours)</label>
+        <div class="slider-wrap">
+          <input type="range" name="sleep_hours" min="3" max="12" step="0.5" value="7" oninput="document.getElementById('sleep-val').textContent=this.value">
+          <span class="slider-val sleep-hours" id="sleep-val">7</span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Stress level</label>
+        <div class="slider-wrap">
+          <input type="range" name="stress_level" min="1" max="5" step="1" value="3" oninput="document.getElementById('stress-val').textContent=this.value">
+          <span class="slider-val" id="stress-val">3</span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Energy level</label>
+        <div class="slider-wrap">
+          <input type="range" name="energy_level" min="1" max="5" step="1" value="3" oninput="document.getElementById('energy-val').textContent=this.value">
+          <span class="slider-val" id="energy-val">3</span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Mood</label>
+        <div class="slider-wrap">
+          <input type="range" name="mood" min="1" max="5" step="1" value="3" oninput="document.getElementById('mood-val').textContent=this.value">
+          <span class="slider-val mood-val" id="mood-val">3</span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Water (ounces)</label>
+        <input type="number" name="water_oz" placeholder="e.g. 64" min="0" step="4" class="water-input">
+      </div>
+
+      <div class="form-field">
+        <label>Period today?</label>
+        <div class="toggle-wrap">
+          <label class="toggle">
+            <input type="checkbox" name="period" value="true">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">Mark if yes</span>
+        </div>
+      </div>
+
+      <div class="form-field" style="grid-column: 1 / -1;">
+        <label>Anything else? (optional)</label>
+        <textarea name="notes" placeholder="How are you feeling today..."></textarea>
+      </div>
+
+      <div class="checkin-submit">
+        <button type="submit" class="btn-submit">Log today</button>
+      </div>
+    </form>
+    {% endif %}
+  </div>
+
+  <!-- Workout + Meal cards -->
+  <div class="main-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">This week's workout</div>
+        <form action="/workout/generate" method="post" style="margin:0">
+          <button type="submit" class="card-action">Generate new</button>
+        </form>
+      </div>
+      {% if workout %}
+      <div class="plan-preview">{{ workout.plan_text[:400] }}</div>
+      <a href="/workout" style="display:block;margin-top:1rem;font-size:0.8rem;color:var(--emerald-light);text-decoration:none;">View full plan</a>
+      {% else %}
+      <p class="empty-state">No workout plan yet. Hit "Generate new" to build your week.</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Meal prep</div>
+        <a href="/meals" class="card-action">View / generate</a>
+      </div>
+      {% if meal %}
+      <div class="plan-preview">{{ meal.plan_text[:400] }}</div>
+      <a href="/meals" style="display:block;margin-top:1rem;font-size:0.8rem;color:var(--emerald-light);text-decoration:none;">View full plan + grocery list</a>
+      {% else %}
+      <p class="empty-state">No meal plan yet. Head to Meals to build one around your budget or groceries.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- 7-day trend chart -->
+  {% if logs %}
+  <div class="card" style="margin-top:1.25rem; border-top: 3px solid var(--emerald);">
+    <div class="card-header">
+      <div class="card-title">This week's trends</div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="trendChart"></canvas>
+    </div>
+    <div class="chart-legend">
+      <span class="legend-dot sleep-dot"></span> Sleep (hours)
+      <span class="legend-dot mood-dot"></span> Mood (1-5)
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+  {% if logs %}
+  const chartData = {{ chart_data | tojson }};
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: chartData.labels,
+      datasets: [
+        {
+          label: 'Sleep',
+          data: chartData.sleep,
+          borderColor: '#c49a1a',
+          backgroundColor: 'rgba(196,154,26,0.08)',
+          tension: 0.3,
+          fill: true,
+          pointRadius: 3,
+          pointBackgroundColor: '#c49a1a',
+          yAxisID: 'ySleep',
+        },
+        {
+          label: 'Mood',
+          data: chartData.mood,
+          borderColor: '#9b3a68',
+          backgroundColor: 'rgba(155,58,104,0.08)',
+          tension: 0.3,
+          fill: true,
+          pointRadius: 3,
+          pointBackgroundColor: '#9b3a68',
+          yAxisID: 'yMood',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        ySleep: { type: 'linear', position: 'left', min: 0, max: 12, grid: { color: '#e2dbd0' }, ticks: { color: '#7a7090', font: { size: 10 } } },
+        yMood: { type: 'linear', position: 'right', min: 0, max: 5, grid: { display: false }, ticks: { color: '#7a7090', font: { size: 10 } } },
+        x: { grid: { display: false }, ticks: { color: '#7a7090', font: { size: 10 } } },
+      }
+    }
+  });
+  {% endif %}
+</script>
+</body>
+</html>

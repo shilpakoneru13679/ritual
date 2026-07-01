@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ritual: Meal Prep</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+  --bg: #faf7f2; --surface: #ffffff; --surface-2: #f3efe8;
+  --border: #e2dbd0; --text: #1e1a2e; --muted: #7a7090;
+  --purple: #5b2d8e; --purple-light: #7c3fbf; --purple-pale: #ede5f8;
+  --orange: #d4621a; --orange-light: #e8803a; --orange-pale: #fbeee5;
+  --ruby: #b5263c; --ruby-pale: #fce8eb;
+  --gold: #c49a1a; --gold-pale: #fdf4d8;
+  --sapphire: #1a4a9b; --pink: #9b3a68; --pink-pale: #f8e5ee; --emerald: #1a7a4a; --emerald-pale: #e5f5ec;
+}
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    nav { padding: 1.2rem 2.5rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid var(--border); background: var(--surface); }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; letter-spacing: 0.08em; }
+    .logo span { color: var(--purple); }
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-links { display: flex; gap: 0.25rem; }
+    .nav-links a { padding: 0.45rem 0.9rem; border-radius: 4px; font-size: 0.82rem; text-decoration: none; color: var(--muted); transition: all 0.15s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--surface-2); }
+    .logout { font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+    h1 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 2rem; }
+
+    /* Generate form */
+    .generate-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 1.75rem 2rem; margin-bottom: 2rem; }
+    .card-label { font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--purple); margin-bottom: 1.25rem; }
+
+    .mode-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .mode-tab { padding: 0.5rem 1.1rem; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 0.85rem; color: var(--muted); background: none; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+    .mode-tab.active { border-color: var(--purple-light); color: var(--purple); background: rgba(64,145,108,0.1); }
+
+    .mode-panel { display: none; }
+    .mode-panel.active { display: block; }
+
+    input[type="number"], textarea { width: 100%; padding: 0.8rem 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; transition: border 0.15s; }
+    input[type="number"]:focus, textarea:focus { border-color: var(--purple-light); }
+    input::placeholder, textarea::placeholder { color: #c0b8c8; }
+    textarea { resize: vertical; height: 80px; }
+    .field-label { display: block; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+    .field-spacer { margin-top: 1.25rem; }
+
+    .macro-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .macro-chip { padding: 0.45rem 0.95rem; border: 1.5px solid var(--border); border-radius: 100px; font-size: 0.82rem; color: var(--muted); cursor: pointer; background: white; transition: all 0.15s; }
+    .macro-chip.selected { border-color: var(--ruby); color: var(--ruby); background: var(--ruby-pale); }
+
+    /* Macro estimate toggle */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.9rem 1.1rem; background: var(--surface); border: 1.5px solid var(--border); border-radius: 6px; }
+    .toggle-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+    .macro-toggle { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
+    .macro-toggle input { display: none; }
+    .macro-toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 24px; cursor: pointer; transition: 0.2s; }
+    .macro-toggle input:checked + .macro-toggle-slider { background: var(--ruby); }
+    .macro-toggle-slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+    .macro-toggle input:checked + .macro-toggle-slider::before { transform: translateX(18px); }
+
+    /* Macro pill in rendered meal output */
+    .macro-pill { display: inline-block; margin-top: 0.3rem; padding: 0.2rem 0.6rem; background: var(--ruby-pale); color: var(--ruby); border-radius: 100px; font-size: 0.72rem; font-weight: 500; }
+
+    .generate-btn { margin-top: 1rem; padding: 0.85rem 1.75rem; background: var(--purple); color: white; border: 1.5px solid var(--purple-light); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .generate-btn:hover { background: var(--purple-light); }
+
+    /* Plan grid */
+    .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .plan-card:nth-child(1) { border-top: 3px solid var(--emerald); }
+    .plan-card:nth-child(2) { border-top: 3px solid var(--pink); }
+    @media (max-width: 700px) { .plan-grid { grid-template-columns: 1fr; } }
+
+    .plan-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem 1.75rem; }
+    .plan-card h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 1rem; }
+    .grocery-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .grocery-card-header h3 { margin-bottom: 0; }
+    .print-link { font-size: 0.78rem; color: var(--purple); text-decoration: none; padding: 0.35rem 0.75rem; border: 1px solid var(--purple); border-radius: 4px; transition: all 0.15s; }
+    .print-link:hover { background: var(--purple); color: white; }
+    .raw-plan { white-space: pre-wrap; font-size: 0.85rem; line-height: 1.8; color: #5a5070; }
+
+    .meal-day { margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+    .meal-day:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .meal-day-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem; }
+    .meal-day-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--purple); }
+    .regen-day-btn { margin-left: auto; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--border); background: white; color: var(--muted); font-size: 0.85rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .regen-day-btn:hover { border-color: var(--purple); color: var(--purple); transform: rotate(45deg); }
+    .regen-day-btn:disabled { opacity: 0.5; cursor: wait; }
+    .meal-row { margin-bottom: 0.6rem; }
+    .meal-row:last-child { margin-bottom: 0; }
+    .meal-type { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--orange); font-weight: 600; }
+    .meal-desc { font-size: 0.85rem; color: var(--text); line-height: 1.6; }
+
+    .grocery-list { list-style: none; }
+    .grocery-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.875rem; cursor: pointer; }
+    .grocery-item:last-child { border-bottom: none; }
+    .grocery-item::before { content: ''; width: 14px; height: 14px; border: 1px solid var(--border); border-radius: 3px; flex-shrink: 0; transition: all 0.15s; }
+    .grocery-item.checked { color: var(--muted); text-decoration: line-through; }
+    .grocery-item.checked::before { background: var(--purple); border-color: var(--emerald); content: '✓'; color: white; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; }
+
+    .loading { display: none; text-align: center; padding: 1.5rem; }
+    .spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 0.75rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="logo">Ritual</div>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/dashboard">Home</a>
+      <a href="/workout">Workout</a>
+      <a href="/meals" class="active">Meals</a>
+      <a href="/calendar">Calendar</a>
+      <a href="/settings">Settings</a>
+    </div>
+    <a href="/logout" class="logout">Log out</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>Meal prep</h1>
+
+  <div class="generate-card">
+    <p class="card-label">Generate a new plan</p>
+
+    <div class="mode-tabs">
+      <button class="mode-tab active" onclick="switchMode('budget', this)">Give me a budget</button>
+      <button class="mode-tab" onclick="switchMode('groceries', this)">I have groceries</button>
+    </div>
+
+    <form action="/meals/generate" method="post" id="meal-form">
+      <div class="mode-panel active" id="panel-budget">
+        <label class="field-label">Weekly grocery budget ($)</label>
+        <input type="number" name="budget" placeholder="e.g. 75" min="0" step="5" value="{{ user.weekly_grocery_budget or '' }}">
+        <input type="hidden" name="mode" id="mode-input" value="budget">
+      </div>
+
+      <div class="mode-panel" id="panel-groceries">
+        <label class="field-label">What do you have?</label>
+        <textarea name="groceries" placeholder="e.g. chicken breast, brown rice, broccoli, eggs, Greek yogurt, spinach..."></textarea>
+      </div>
+
+      <div class="field-spacer">
+        <label class="field-label">Nutrition focus (optional, pick any)</label>
+        <div class="macro-chips">
+          <div class="macro-chip" onclick="toggleMacro('High protein', this)">High protein</div>
+          <div class="macro-chip" onclick="toggleMacro('Low calorie', this)">Low calorie</div>
+          <div class="macro-chip" onclick="toggleMacro('High calorie', this)">High calorie</div>
+          <div class="macro-chip" onclick="toggleMacro('High fiber', this)">High fiber</div>
+          <div class="macro-chip" onclick="toggleMacro('High carb', this)">High carb</div>
+          <div class="macro-chip" onclick="toggleMacro('Low carb', this)">Low carb</div>
+          <div class="macro-chip" onclick="toggleMacro('High fat', this)">High fat</div>
+          <div class="macro-chip" onclick="toggleMacro('Low fat', this)">Low fat</div>
+        </div>
+        <input type="hidden" name="macro_prefs" id="macro-prefs-input" value="">
+      </div>
+
+      <div class="field-spacer">
+        <label class="field-label">Foods you love or hate (optional)</label>
+        <textarea name="food_prefs" placeholder="e.g. love spicy food, can't stand mushrooms, obsessed with avocado, no seafood, hate cilantro..."></textarea>
+      </div>
+
+      <div class="field-spacer toggle-row">
+        <div>
+          <label class="field-label" style="margin-bottom: 0.2rem;">Show macro estimates</label>
+          <p class="toggle-desc">Rough calories, protein, carbs, fat, and fiber for each meal.</p>
+        </div>
+        <label class="macro-toggle">
+          <input type="checkbox" name="show_macros" value="true" id="macro-toggle">
+          <span class="macro-toggle-slider"></span>
+        </label>
+      </div>
+
+      <button type="submit" class="generate-btn" onclick="document.getElementById('loading').style.display='block'">Build my meal plan</button>
+    </form>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p style="color:var(--muted);font-size:0.85rem;">Building your meal plan...</p>
+    </div>
+  </div>
+
+  {% if plan %}
+  <div class="plan-grid">
+    <div class="plan-card">
+      <h3>This week's meals</h3>
+      <div class="raw-plan" id="plan-raw" style="display:none">{{ plan.plan_text }}</div>
+      <div id="plan-rendered"></div>
+    </div>
+    <div class="plan-card">
+      <div class="grocery-card-header">
+        <h3>Grocery list</h3>
+        {% if plan.grocery_list %}
+        <a href="/meals/grocery-print" target="_blank" class="print-link">🖨️ Print</a>
+        {% endif %}
+      </div>
+      {% if plan.grocery_list %}
+      <ul class="grocery-list" id="grocery-list">
+        {% for line in plan.grocery_list.split('\n') %}
+          {% if line.strip() and not line.strip().startswith('GROCERY') %}
+          <li class="grocery-item" onclick="this.classList.toggle('checked')">{{ line.strip().lstrip('- ') }}</li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p style="color:var(--muted);font-size:0.875rem;">No grocery list generated.</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <form action="/meals/regenerate-day" method="post" id="regen-meal-day-form" style="display:none">
+    <input type="hidden" name="day_name" id="regen-meal-day-name" value="">
+  </form>
+</div>
+
+<script>
+  let selectedMacros = [];
+
+
+  function toggleMacro(macro, el) {
+    el.classList.toggle('selected');
+    if (selectedMacros.includes(macro)) {
+      selectedMacros = selectedMacros.filter(m => m !== macro);
+    } else {
+      selectedMacros.push(macro);
+    }
+    document.getElementById('macro-prefs-input').value = selectedMacros.join(', ');
+  }
+
+  function switchMode(mode, btn) {
+    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + mode).classList.add('active');
+    document.getElementById('mode-input').value = mode;
+  }
+
+  {% if plan %}
+  const mealRaw = document.getElementById('plan-raw').textContent;
+  const mealLines = mealRaw.split('\n').map(l => l.trim()).filter(l => l);
+  let mealHtml = '';
+  let inDay = false;
+
+  mealLines.forEach(line => {
+    const dayMatch = line.match(/^DAY\s+(\w+)[:]?/i);
+    if (dayMatch) {
+      if (inDay) mealHtml += '</div>';
+      const dn = dayMatch[1];
+      mealHtml += `<div class="meal-day"><div class="meal-day-header"><span class="meal-day-title">${dn}</span><button class="regen-day-btn" onclick="regenerateMealDay('${dn}', this)" title="Regenerate this day">↻</button></div>`;
+      inDay = true;
+      return;
+    }
+
+    const mealMatch = line.match(/^(Breakfast|Lunch|Dinner|Snack)\s*[:]\s*(.+)/i);
+    if (mealMatch && inDay) {
+      let desc = mealMatch[2];
+      let macroPill = '';
+
+      // Detect a macro estimate pattern like "(approx 450 cal, 30g protein, 40g carbs, 15g fat, 6g fiber)"
+      const macroMatch = desc.match(/\(([^)]*\b(cal|protein|carb|fat|fiber)\b[^)]*)\)/i);
+      if (macroMatch) {
+        macroPill = `<span class="macro-pill">${macroMatch[1]}</span>`;
+        desc = desc.replace(macroMatch[0], '').trim();
+      }
+
+      mealHtml += `<div class="meal-row"><div class="meal-type">${mealMatch[1]}</div><div class="meal-desc">${desc}</div>${macroPill}</div>`;
+    }
+  });
+
+  if (inDay) mealHtml += '</div>';
+  document.getElementById('plan-rendered').innerHTML = mealHtml || `<div class="raw-plan">${mealRaw}</div>`;
+  {% endif %}
+
+  function regenerateMealDay(dayName, btn) {
+    btn.textContent = '...';
+    btn.disabled = true;
+    document.getElementById('regen-meal-day-name').value = dayName;
+    document.getElementById('regen-meal-day-form').submit();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ritual: Edit Log</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #faf7f2; --surface: #ffffff; --surface-2: #f3efe8;
+      --border: #e2dbd0; --text: #1e1a2e; --muted: #7a7090;
+      --purple: #5b2d8e; --purple-light: #7c3fbf; --purple-pale: #ede5f8;
+      --orange: #d4621a; --ruby: #b5263c; --ruby-pale: #fce8eb;
+      --pink: #9b3a68;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    nav { padding: 1.2rem 2.5rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid var(--border); background: var(--surface); }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; letter-spacing: 0.06em; color: var(--purple); }
+    .back-link { font-size: 0.82rem; color: var(--muted); text-decoration: none; }
+    .back-link:hover { color: var(--text); }
+
+    .container { max-width: 540px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+    .eyebrow { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--orange); margin-bottom: 0.5rem; }
+    h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 2rem; }
+
+    .future-notice { background: var(--ruby-pale); border: 1.5px solid var(--ruby); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--ruby); }
+
+    .card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 1.75rem 2rem; }
+    .form-field { margin-bottom: 1.5rem; }
+    .form-field label { display: block; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; }
+
+    .slider-wrap { display: flex; align-items: center; gap: 0.75rem; }
+    input[type="range"] { flex: 1; accent-color: var(--pink); }
+    .slider-val { font-size: 0.9rem; font-weight: 500; color: var(--pink); min-width: 1.5rem; text-align: right; }
+
+    .water-input { width: 100%; padding: 0.65rem 0.9rem; background: var(--surface-2); border: 1.5px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; }
+    .water-input:focus { border-color: var(--purple-light); }
+
+    .toggle-wrap { display: flex; align-items: center; gap: 0.75rem; }
+    .toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
+    .toggle input { display: none; }
+    .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 22px; cursor: pointer; transition: 0.2s; }
+    .toggle input:checked + .toggle-slider { background: var(--pink); }
+    .toggle-slider::before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+    .toggle-label { font-size: 0.875rem; color: var(--muted); }
+
+    textarea { width: 100%; padding: 0.75rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.875rem; outline: none; resize: none; height: 70px; }
+    textarea:focus { border-color: var(--purple-light); }
+
+    .actions { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
+    .btn-save { flex: 1; padding: 0.85rem; background: var(--purple); color: white; border: 1.5px solid var(--purple-light); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn-save:hover { background: var(--purple-light); }
+    .btn-delete { padding: 0.85rem 1.25rem; background: transparent; color: var(--ruby); border: 1.5px solid var(--ruby); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
+    .btn-delete:hover { background: var(--ruby); color: white; }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="logo">Ritual</div>
+  <a href="/calendar" class="back-link">← Back to calendar</a>
+</nav>
+
+<div class="container">
+  <p class="eyebrow">{{ log_date.strftime('%A') }}</p>
+  <h1>{{ log_date.strftime('%B %-d, %Y') }}</h1>
+
+  {% if is_future %}
+  <div class="future-notice">This date is in the future. You can still log it if you'd like, but it won't count toward your streak.</div>
+  {% endif %}
+
+  <div class="card">
+    <form action="/log/edit/{{ log_date.strftime('%Y-%m-%d') }}" method="post">
+      <div class="form-field">
+        <label>Sleep (hours)</label>
+        <div class="slider-wrap">
+          <input type="range" name="sleep_hours" min="3" max="12" step="0.5" value="{{ log.sleep_hours if log else 7 }}" oninput="document.getElementById('sleep-val').textContent=this.value">
+          <span class="slider-val" id="sleep-val">{{ log.sleep_hours if log else 7 }}</span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Stress level</label>
+        <div class="slider-wrap">
+          <input type="range" name="stress_level" min="1" max="5" step="1" value="{{ log.stress_level if log else 3 }}" oninput="document.getElementById('stress-val').textContent=this.value">
+          <span class="slider-val" id="stress-val">{{ log.stress_level if log else 3 }}</span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Energy level</label>
+        <div class="slider-wrap">
+          <input type="range" name="energy_level" min="1" max="5" step="1" value="{{ log.energy_level if log else 3 }}" oninput="document.getElementById('energy-val').textContent=this.value">
+          <span class="slider-val" id="energy-val">{{ log.energy_level if log else 3 }}</span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Mood</label>
+        <div class="slider-wrap">
+          <input type="range" name="mood" min="1" max="5" step="1" value="{{ log.mood if log else 3 }}" oninput="document.getElementById('mood-val').textContent=this.value">
+          <span class="slider-val" id="mood-val">{{ log.mood if log else 3 }}</span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Water (ounces)</label>
+        <input type="number" name="water_oz" class="water-input" value="{{ log.water_oz if log else '' }}" min="0" step="4">
+      </div>
+
+      <div class="form-field">
+        <label>Period that day?</label>
+        <div class="toggle-wrap">
+          <label class="toggle">
+            <input type="checkbox" name="period" value="true" {{ 'checked' if log and log.period else '' }}>
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">Mark if yes</span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Notes</label>
+        <textarea name="notes" placeholder="Anything else...">{{ log.notes if log else '' }}</textarea>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn-save">Save changes</button>
+      </div>
+    </form>
+
+    {% if log %}
+    <form action="/log/delete/{{ log_date.strftime('%Y-%m-%d') }}" method="post" style="margin-top: 0.75rem;" onsubmit="return confirm('Delete this log entry?')">
+      <button type="submit" class="btn-delete" style="width: 100%;">Delete this log</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+</body>
+</html>

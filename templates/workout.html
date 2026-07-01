@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ritual: Workout Plan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #faf7f2; --surface: #ffffff; --surface-2: #f3efe8;
+      --border: #e2dbd0; --text: #1e1a2e; --muted: #7a7090;
+      --purple: #5b2d8e; --purple-light: #7c3fbf; --purple-pale: #ede5f8;
+      --orange: #d4621a; --orange-light: #e8803a; --orange-pale: #fbeee5;
+      --ruby: #b5263c; --ruby-pale: #fce8eb;
+      --gold: #c49a1a; --gold-pale: #fdf4d8;
+      --sapphire: #1a4a9b; --sapphire-pale: #e5ecfb;
+      --emerald: #1a7a4a; --emerald-pale: #e5f5ec;
+      --pink: #9b3a68; --pink-pale: #f8e5ee;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    nav { padding: 1.2rem 2.5rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid var(--border); background: var(--surface); }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; letter-spacing: 0.06em; color: var(--purple); }
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-links { display: flex; gap: 0.25rem; }
+    .nav-links a { padding: 0.45rem 0.9rem; border-radius: 4px; font-size: 0.82rem; text-decoration: none; color: var(--muted); transition: all 0.15s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--purple); background: var(--purple-pale); }
+    .logout { font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+    .logout:hover { color: var(--text); }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--text); }
+
+    /* Settings summary strip */
+    .settings-strip { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .setting-pill { padding: 0.4rem 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; font-size: 0.78rem; color: var(--muted); }
+    .settings-edit-link { font-size: 0.78rem; color: var(--purple); text-decoration: none; align-self: center; }
+    .settings-edit-link:hover { text-decoration: underline; }
+
+    /* Quick override */
+    .override-card { background: var(--emerald-pale); border: 1.5px solid var(--emerald); border-radius: 8px; padding: 1.1rem 1.5rem; margin-bottom: 1.5rem; }
+    .override-label { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--emerald); margin-bottom: 0.5rem; font-weight: 600; display: block; }
+    .override-row { display: flex; gap: 0.75rem; }
+    .override-input { flex: 1; padding: 0.7rem 0.95rem; background: white; border: 1.5px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.875rem; outline: none; transition: border 0.15s; }
+    .override-input:focus { border-color: var(--emerald); }
+    .override-input::placeholder { color: #c0b8c8; }
+    .generate-btn { padding: 0.7rem 1.4rem; background: var(--purple); color: white; border: 1.5px solid var(--purple); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .generate-btn:hover { background: var(--purple-light); }
+
+    /* Day blocks */
+    .day-block { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 1.5rem 1.75rem; margin-bottom: 1rem; }
+    .day-block:nth-of-type(7n+1) { border-top: 3px solid var(--purple); }
+    .day-block:nth-of-type(7n+2) { border-top: 3px solid var(--orange); }
+    .day-block:nth-of-type(7n+3) { border-top: 3px solid var(--pink); }
+    .day-block:nth-of-type(7n+4) { border-top: 3px solid var(--sapphire); }
+    .day-block:nth-of-type(7n+5) { border-top: 3px solid var(--emerald); }
+    .day-block:nth-of-type(7n+6) { border-top: 3px solid var(--gold); }
+    .day-block:nth-of-type(7n+7) { border-top: 3px solid var(--ruby); }
+
+    .day-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .regen-day-btn { margin-left: auto; width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--border); background: white; color: var(--muted); font-size: 0.95rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .regen-day-btn:hover { border-color: var(--purple); color: var(--purple); transform: rotate(45deg); }
+    .regen-day-btn:disabled { opacity: 0.5; cursor: wait; }
+    .day-number { font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--orange); font-weight: 600; }
+    .day-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--text); }
+    .exercise-row { display: flex; justify-content: space-between; align-items: baseline; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.875rem; gap: 1rem; }
+    .exercise-row:last-child { border-bottom: none; }
+    .exercise-name { color: var(--text); }
+    .exercise-detail { color: var(--pink); font-size: 0.8rem; text-align: right; }
+    .section-note { font-size: 0.8rem; color: var(--muted); margin: 0.5rem 0; font-style: italic; }
+    .rest-day { color: var(--muted); font-style: italic; font-size: 0.9rem; }
+    .focus-note { background: var(--gold-pale); border: 1.5px solid var(--gold); border-radius: 6px; padding: 1rem 1.25rem; margin-top: 1.5rem; font-size: 0.875rem; color: #8a6d10; }
+
+    .day-video-card { margin-top: 0.85rem; padding: 1rem 1.1rem; background: var(--sapphire-pale); border: 1.5px solid var(--sapphire); border-radius: 6px; }
+    .video-label { font-size: 0.72rem; color: var(--sapphire); margin-bottom: 0.4rem; font-weight: 500; }
+    .video-query { font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.95rem; color: var(--text); margin-bottom: 0.6rem; }
+    .video-search-btn { display: inline-block; padding: 0.45rem 0.95rem; background: var(--sapphire); color: white; border-radius: 4px; font-size: 0.78rem; text-decoration: none; font-weight: 500; transition: all 0.15s; }
+    .video-search-btn:hover { background: #14397a; }
+
+    .raw-plan { white-space: pre-wrap; font-size: 0.875rem; line-height: 1.8; color: var(--text); }
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--muted); }
+    .empty-state p { margin-bottom: 1.5rem; line-height: 1.7; }
+
+    .loading { display: none; text-align: center; padding: 2rem; }
+    .spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="logo">Ritual</div>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/dashboard">Home</a>
+      <a href="/workout" class="active">Workout</a>
+      <a href="/meals">Meals</a>
+      <a href="/calendar">Calendar</a>
+    </div>
+    <a href="/logout" class="logout">Log out</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Your workout plan</h1>
+  </div>
+
+  <div class="settings-strip">
+    <div class="setting-pill">{{ user.workout_duration }} min sessions</div>
+    <div class="setting-pill">{{ user.workout_days.split(',')|length if user.workout_days else 0 }} days/week</div>
+    {% if user.use_videos and user.video_days > 0 %}
+    <div class="setting-pill">📺 {{ user.video_days }} video days</div>
+    {% endif %}
+    <a href="/settings" class="settings-edit-link">Edit preferences</a>
+  </div>
+
+  <div class="override-card">
+    <label class="override-label">This week's focus (optional override)</label>
+    <form action="/workout/generate" method="post" id="gen-form">
+      <div class="override-row">
+        <input type="text" name="override_goal" class="override-input" placeholder="{{ user.weekly_goal if user.weekly_goal else 'e.g. focus on arms, train for a 5k, just stay consistent...' }}">
+        <button type="submit" class="generate-btn" onclick="showLoading()">Generate new week</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p style="color:var(--muted);font-size:0.875rem;">Building your plan...</p>
+  </div>
+
+  {% if plan %}
+  <div id="plan-content">
+    <div class="raw-plan" id="plan-raw" style="display:none">{{ plan.plan_text }}</div>
+    <div id="plan-rendered"></div>
+    <div class="focus-note" id="focus-note" style="display:none"></div>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>No workout plan yet.<br>Hit "Generate new week" and we'll build one around your goals and schedule.</p>
+  </div>
+  {% endif %}
+
+  <form action="/workout/regenerate-day" method="post" id="regen-day-form" style="display:none">
+    <input type="hidden" name="day_name" id="regen-day-name" value="">
+  </form>
+</div>
+
+<script>
+  function showLoading() {
+    document.getElementById('loading').style.display = 'block';
+  }
+
+  function regenerateDay(dayName, btn) {
+    btn.textContent = '...';
+    btn.disabled = true;
+    document.getElementById('regen-day-name').value = dayName;
+    document.getElementById('regen-day-form').submit();
+  }
+
+  {% if plan %}
+  const raw = document.getElementById('plan-raw').textContent;
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
+  let html = '';
+  let currentDay = null;
+  let focusNote = '';
+  let inFocus = false;
+
+  lines.forEach(line => {
+    if (line.match(/^DAY\s+(\w+)[:]/i)) {
+      if (currentDay) html += '</div></div>';
+      const parts = line.split(':');
+      const dayName = parts[0].replace(/DAY\s+/i, '').trim();
+      const theme = parts.slice(1).join(':').trim();
+      currentDay = dayName;
+      inFocus = false;
+
+      if (line.toLowerCase().includes('rest')) {
+        html += `<div class="day-block"><div class="day-header"><span class="day-number">${dayName}</span></div><p class="rest-day">Rest day, recover and recharge.</p></div>`;
+        currentDay = null;
+      } else {
+        html += `<div class="day-block"><div class="day-header"><span class="day-number">${dayName}</span><span class="day-title">${theme}</span><button class="regen-day-btn" onclick="regenerateDay('${dayName}', this)" title="Regenerate this day">↻</button></div><div>`;
+      }
+    } else if (line.match(/^FOLLOW VIDEO:/i)) {
+      const videoQuery = line.replace(/^FOLLOW VIDEO:\s*/i, '').trim();
+      const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(videoQuery)}`;
+      html += `<div class="day-video-card">
+        <div class="video-label">📺 Follow along on YouTube</div>
+        <div class="video-query">"${videoQuery}"</div>
+        <a href="${searchUrl}" target="_blank" class="video-search-btn">Find this video →</a>
+      </div>`;
+    } else if (line.match(/^(warmup|cooldown):/i)) {
+      const parts = line.split(':');
+      html += `<p class="section-note">${parts[0]}: ${parts.slice(1).join(':').trim()}</p>`;
+    } else if (line.match(/this week'?s focus/i)) {
+      if (currentDay) { html += '</div></div>'; currentDay = null; }
+      inFocus = true;
+    } else if (inFocus) {
+      focusNote += line + ' ';
+    } else if (currentDay && line.includes(':')) {
+      const colonIdx = line.indexOf(':');
+      const name = line.slice(0, colonIdx).trim();
+      const detail = line.slice(colonIdx + 1).trim();
+      html += `<div class="exercise-row"><span class="exercise-name">${name}</span><span class="exercise-detail">${detail}</span></div>`;
+    }
+  });
+
+  if (currentDay) html += '</div></div>';
+  document.getElementById('plan-rendered').innerHTML = html || `<div class="raw-plan">${raw}</div>`;
+
+  if (focusNote.trim()) {
+    const fn = document.getElementById('focus-note');
+    fn.textContent = focusNote.trim();
+    fn.style.display = 'block';
+  }
+  {% endif %}
+</script>
+</body>
+</html>
