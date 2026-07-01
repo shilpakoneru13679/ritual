@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Form, Request, Depends, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from datetime import date, datetime
 from typing import List, Optional
@@ -19,7 +18,6 @@ client = genai.Client(api_key=api_key)
 MODEL = "gemini-3.5-flash"
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 # Initialize DB on startup
